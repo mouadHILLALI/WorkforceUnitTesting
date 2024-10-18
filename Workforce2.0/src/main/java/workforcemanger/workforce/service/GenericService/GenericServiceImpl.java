@@ -2,8 +2,6 @@ package workforcemanger.workforce.service.GenericService;
 
 import workforcemanger.workforce.configuration.JpaEntityManagerFactory;
 import workforcemanger.workforce.repository.GenericRepository.GenericRepositoryImpl;
-
-import javax.persistence.EntityManager;
 import java.util.Collections;
 import java.util.List;
 
