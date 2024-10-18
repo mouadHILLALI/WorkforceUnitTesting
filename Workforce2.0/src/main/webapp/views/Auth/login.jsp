@@ -31,7 +31,7 @@
             <label for="userType">Are you an employee?</label>
             <select id="userType" name="userType" required>
                 <option value="employee">Employee</option>
-                <option value="nonEmployee">Non-Employee</option>
+                <option value="Other">Other</option>
             </select>
         </div>
         <button type="submit" class="login-button">Log In</button>

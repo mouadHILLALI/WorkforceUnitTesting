@@ -2,8 +2,10 @@ package workforcemanger.workforce.controller;
 
 import workforcemanger.workforce.dto.EmployeeDTO;
 import workforcemanger.workforce.dto.UserDTO;
+import workforcemanger.workforce.entity.JobOffer;
 import workforcemanger.workforce.maas.MaasAuthetificationImpl;
 import workforcemanger.workforce.service.EmployeeService.EmployeeServices;
+import workforcemanger.workforce.service.GenericService.GenericServiceImpl;
 import workforcemanger.workforce.service.UserService.UserService;
 
 import javax.servlet.RequestDispatcher;
@@ -17,8 +19,10 @@ import java.util.List;
 
 @WebServlet(name = "user" , value = "/user")
 public class UserServlet extends HttpServlet {
-    final UserService userService = new UserService();
+    MaasAuthetificationImpl maasAuthetification = new MaasAuthetificationImpl();
+    final UserService userService = new UserService(maasAuthetification);
     final EmployeeServices employeeService = new EmployeeServices();
+    final GenericServiceImpl genericService = new GenericServiceImpl();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String action = req.getParameter("action");
@@ -28,6 +32,7 @@ public class UserServlet extends HttpServlet {
             break;
         case "getAll":
             getAllInfo(req, resp);
+            break;
         default:
             break;
      }
@@ -41,16 +46,8 @@ public class UserServlet extends HttpServlet {
                 create(req, resp);
                 break;
             case "login":
-                if (role.equals("employee")) {
-                    employeeLogin(req, resp);
-                    break;
-                }else if (role.equals("nonEmployee")) {
-                login(req, resp);
-                    break;
-                }else{
-                    logout(req, resp);
-                    break;
-                }
+               login(req, resp);
+               break;
         }
     }
     public void create(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -78,60 +75,34 @@ public class UserServlet extends HttpServlet {
         }
     }
     public void login(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        try {
-//
-//            if (loggedInUser != null) {
-//                req.getSession().setAttribute("user", loggedInUser);
-//                String targetPage;
-//                switch (loggedInUser.getRole()) {
-//                    case "candidate":
-//                        targetPage = "/views/candidate/candidate.jsp";
-//                        break;
-//                    case "admin":
-//                        targetPage = "/views/admin/admin.jsp?action=";
-//                        break;
-//                    default:
-//                        targetPage = "/views/login.jsp";
-//                        break;
-//                }
-//                RequestDispatcher rd = req.getRequestDispatcher(targetPage);
-//                rd.forward(req, resp);
-
-//            } else {
-//                req.setAttribute("loginError", "Invalid email or password.");
-//                RequestDispatcher rd = req.getRequestDispatcher("/views/Auth/login.jsp");
-//                rd.forward(req, resp);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            req.setAttribute("errorMessage", "An error occurred during login. Please try again.");
-//            RequestDispatcher rd = req.getRequestDispatcher("/views/login.jsp");
-//            rd.forward(req, resp);
-//        }
-        String password = req.getParameter("password");
-        String email = req.getParameter("email");
-        UserDTO user = new UserDTO();
-        user.setEmail(email);
-        user.setPassword(password);
-        UserDTO loggedInUser = userService.login(user);
-    }
-
-    public void employeeLogin(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             String password = req.getParameter("password");
             String email = req.getParameter("email");
-            EmployeeDTO employeeDTO = employeeService.employeeLogin(email, password);
-            if (employeeDTO != null) {
-                req.getSession().setAttribute("employee", employeeDTO);
-                RequestDispatcher rd = req.getRequestDispatcher("/views/employee/employee.jsp");
-                rd.forward(req, resp);
-            }else{
-                req.setAttribute("loginError", "Invalid email or password.");
-                RequestDispatcher rd = req.getRequestDispatcher("/views/Auth/login.jsp");
-                rd.forward(req, resp);
+            String role = req.getParameter("userType");
+            Object loggedInUser = null;
+
+            if (role.equals("employee")) {
+                EmployeeDTO employee = new EmployeeDTO();
+                employee.setEmail(email);
+                employee.setPassword(password);
+                employee = userService.login(employee);
+                reroute(req , resp , employee , "employee" );
+            } else if (role.equals("other")) {
+                UserDTO user = new UserDTO();
+                user.setEmail(email);
+                user.setPassword(password);
+                user = userService.login(user);
+                if (user!=null) {
+                reroute(req , resp , user , user.getRole());
+                }else{
+                    RequestDispatcher rd = req.getRequestDispatcher("/views/Auth/login.jsp");
+                    rd.forward(req, resp);
+                }
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            req.setAttribute("error", "An error occurred during login");
+            req.getRequestDispatcher("/login.jsp").forward(req, resp);
         }
     }
     public void getAllInfo(HttpServletRequest req , HttpServletResponse res) throws ServletException , IOException {
@@ -142,6 +113,36 @@ public class UserServlet extends HttpServlet {
             rd.forward(req, res);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+    public void reroute(HttpServletRequest req, HttpServletResponse response, Object obj, String role) {
+        try {
+            String target;
+            switch (role) {
+                case "employee":
+                    target = "/views/employee/employee.jsp";
+                    break;
+                case "candidate":
+                    target = "/views/candidate/candidate.jsp";
+                    break;
+                case "admin":
+                    target = "/views/admin/admin.jsp";
+                    break;
+                case "hr":
+                    target = "/views/hr/hr.jsp";
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid role: " + role);
+            }
+            req.getSession().setAttribute("user", obj);
+            if (role.equals("candidate")) {
+                List<JobOffer> jobOffers = genericService.findAll(JobOffer.class);
+                req.setAttribute("jobs", jobOffers);
+            }
+            RequestDispatcher rd = req.getRequestDispatcher(target);
+            rd.forward(req, response);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

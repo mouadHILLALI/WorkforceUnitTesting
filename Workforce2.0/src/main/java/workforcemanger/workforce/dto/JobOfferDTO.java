@@ -10,14 +10,14 @@ public class JobOfferDTO {
     private String description;
     private String requirements;
     private LocalDate datePosted;
-    private StatusEnum status;
+    private String status;
     private LocalDate validityDate;
     private int hrID;
 
     public JobOfferDTO() {}
 
 
-    public JobOfferDTO(int id, String title, String description, String requirements, LocalDate datePosted, StatusEnum status, LocalDate validityDate , int hrID) {
+    public JobOfferDTO(int id, String title, String description, String requirements, LocalDate datePosted, String status, LocalDate validityDate , int hrID) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -68,11 +68,11 @@ public class JobOfferDTO {
         this.datePosted = datePosted;
     }
 
-    public StatusEnum getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(StatusEnum status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 

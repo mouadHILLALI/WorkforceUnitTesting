@@ -2,6 +2,8 @@ package workforcemanger.workforce.entity;
 
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -16,6 +18,11 @@ public class User {
     protected String email;
     protected String phone;
     protected String role;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "job_offer_id")
+    private JobOffer jobOffer;
+    @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<JobOfferCandidate> jobOffers = new ArrayList<>();
     public User() {}
     public User(int id, String userName, String password, String email, String phone, String role) {
         this.id = id;
