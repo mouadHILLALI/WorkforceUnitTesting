@@ -75,9 +75,10 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
     }
 
     @Override
-    public <T> T get(T t) {
+    public <T> T get(Class<T> clazz, int id) {
         return null;
     }
+
 
     @Override
     public List<Employee> findAll() {

@@ -54,11 +54,4 @@ public class EmployeeServices {
             return false;
         }
     }
-    public EmployeeDTO employeeLogin(String email, String password) {
-        try {
-            return EmployeeDTOMapper.EmployeeToDto(employeeRepository.login(email, password));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

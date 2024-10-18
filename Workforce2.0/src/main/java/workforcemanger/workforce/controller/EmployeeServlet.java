@@ -2,6 +2,7 @@ package workforcemanger.workforce.controller;
 
 import workforcemanger.workforce.cache.Cache;
 import workforcemanger.workforce.dto.EmployeeDTO;
+import workforcemanger.workforce.dto.UserDTO;
 import workforcemanger.workforce.service.EmployeeService.EmployeeServices;
 
 import javax.servlet.RequestDispatcher;
@@ -25,6 +26,9 @@ public class EmployeeServlet extends HttpServlet {
                 break;
             case "delete":
                 delete(req, resp);
+                break;
+            case "profile":
+                profile(req, resp);
                 break;
         }
     }
@@ -113,5 +117,37 @@ public class EmployeeServlet extends HttpServlet {
         }catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+    public void profile(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+            EmployeeDTO user = (EmployeeDTO) req.getSession().getAttribute("employee");
+            int allocation = 0;
+            double salary = user.getSalary();
+            int childrenCount = user.getChildrenCount();
+            System.out.println(user.getSalary() + " " + user.getChildrenCount());
+            if (salary < 6000) {
+                allocation = 300;
+            } else if (salary > 8000) {
+                allocation = 200;
+            }
+            int result = 0;
+            for (int i = 0; i < childrenCount; i++) {
+                result += allocation;
+                if (i == 3) {
+                    if (salary < 6000) {
+                        result += (allocation / 2);
+                    } else if (salary > 8000) {
+                        result += (allocation * 0.55);
+                    }
+                }
+            }
+            req.setAttribute("user", user);
+            req.setAttribute("allocation", 0);
+            RequestDispatcher dispatcher = req.getRequestDispatcher("/views/employee/employeeProfile.jsp");
+            dispatcher.forward(req, resp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }

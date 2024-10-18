@@ -44,13 +44,13 @@ public class JobOfferRepositoryImpl implements JobOfferRepository {
     }
 
     @Override
+    public <T> T get(Class<T> clazz, int id) {
+        return null;
+    }
+
+    @Override
     public boolean delete(int id) {
         return false;
     }
 
-
-    @Override
-    public <T> T get(T t) {
-        return null;
-    }
 }

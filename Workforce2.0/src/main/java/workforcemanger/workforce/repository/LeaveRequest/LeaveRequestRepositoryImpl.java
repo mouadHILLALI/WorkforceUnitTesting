@@ -39,7 +39,7 @@ public class LeaveRequestRepositoryImpl  implements LeaveRequestRepoistory{
     }
 
     @Override
-    public <T> T get(T t) {
+    public <T> T get(Class<T> clazz, int id) {
         return null;
     }
 }

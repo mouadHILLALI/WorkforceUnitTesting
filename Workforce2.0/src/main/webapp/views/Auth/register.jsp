@@ -14,7 +14,7 @@
 </div>
 
 <div class="container">
-    <h2>Create Your Account</h2>
+    <h2>Create Your Account </h2>
     <form action="/user" method="post">
         <div class="form-group">
             <label for="username">Username:</label>
